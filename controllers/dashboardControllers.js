@@ -170,11 +170,11 @@ try{
   const image_2 = req.files?.find(f => f.fieldname === 'image_2');
   const image_3 = req.files?.find(f => f.fieldname === 'image_3');
   const image_4 = req.files?.find(f => f.fieldname === 'image_4');
-
-  const imageLink_1 = image_1 ? `${URL}/uploads/${image_1.filename}` : null;
-  const imageLink_2 = image_2 ? `${URL}/uploads/${image_2.filename}` : null;
-  const imageLink_3 = image_3 ? `${URL}/uploads/${image_3.filename}` : null;
-  const imageLink_4 = image_4 ? `${URL}/uploads/${image_4.filename}` : null;
+  
+    const imageLink_1 = image_1 ? image_1.path : null;
+    const imageLink_2 = image_2 ? image_2.path : null;
+    const imageLink_3 = image_3 ? image_3.path : null;
+    const imageLink_4 = image_4 ? image_4.path : null;
 
   // const neighborhood = await Neighborhood.findById(req.params.neighborhood_id);
   // if (!neighborhood) return res.status(404).json({ message: 'Neighborhood not found' });
@@ -267,10 +267,10 @@ exports.editDepartment = async (req, res) => {
     const image_3 = req.files?.find(f => f.fieldname === 'image_3');
     const image_4 = req.files?.find(f => f.fieldname === 'image_4');
 
-    const imageLink_1 = image_1 ? `${URL}/uploads/${image_1.filename}` : null;
-    const imageLink_2 = image_2 ? `${URL}/uploads/${image_2.filename}` : null;
-    const imageLink_3 = image_3 ? `${URL}/uploads/${image_3.filename}` : null;
-    const imageLink_4 = image_4 ? `${URL}/uploads/${image_4.filename}` : null;
+    const imageLink_1 = image_1 ? image_1.path : null;
+    const imageLink_2 = image_2 ? image_2.path : null;
+    const imageLink_3 = image_3 ? image_3.path : null;
+    const imageLink_4 = image_4 ? image_4.path : null;
 
 
 
@@ -392,7 +392,7 @@ exports.deleteRequest = async (req, res) => {
 exports.createPartner = async (req, res) => {
   try {
     const image = req.files?.find(f => f.fieldname === 'image');
-    const imageLink = image ? `${URL}/uploads/${image.filename}` : null;
+    const imageLink = image ? image.path : null;
 
     const { name, description } = req.body;
 
@@ -421,7 +421,7 @@ exports.getAllPartners = async (req, res) => {
 exports.editPartner = async (req, res) => {
   try {
     const image = req.files?.find(f => f.fieldname === 'image');
-    const imageLink = image ? `${URL}/uploads/${image.filename}` : null;
+    const imageLink = image ? image.path : null;
 
     const updateData = { ...req.body };
     if (imageLink) updateData.image = imageLink;
@@ -454,11 +454,14 @@ exports.createFinish = async (req, res) => {
     let finishies = [];
     let processArr = [];
 
-
+    // معالجة finishies
     if (req.body.finishies) {
-      Object.keys(req.body.finishies).forEach(idx => {
-        let props = req.body.finishies[idx].properties;
+      const finishiesData = Array.isArray(req.body.finishies)
+        ? req.body.finishies
+        : Object.values(req.body.finishies);
 
+      finishiesData.forEach((finish, idx) => {
+        let props = finish.properties;
         if (typeof props === 'string') {
           try {
             props = JSON.parse(props);
@@ -469,24 +472,44 @@ exports.createFinish = async (req, res) => {
 
         const imageFile = req.files?.find(f => f.fieldname === `finishies[${idx}][image]`);
         finishies.push({
-          name: req.body.finishies[idx].name,
+          name: finish.name,
           image: imageFile ? imageFile.path : '',
           properties: props
         });
       });
     }
 
-
+    // معالجة process
     if (req.body.process) {
-      Object.keys(req.body.process).forEach(idx => {
+      const processData = Array.isArray(req.body.process)
+        ? req.body.process
+        : Object.values(req.body.process);
+
+      processData.forEach((proc, idx) => {
         const iconFile = req.files?.find(f => f.fieldname === `process[${idx}][icon_image]`);
         processArr.push({
-          name: req.body.process[idx].name,
+          name: proc.name,
           icon_image: iconFile ? iconFile.path : '',
-          description: req.body.process[idx].description
+          description: proc.description
         });
       });
     }
+
+    // إنشاء Finish جديد
+    const newFinish = await Finish.create({
+      finishies,
+      process: processArr,
+      main_image: req.files?.find(f => f.fieldname === 'main_image')?.path || '',
+      main_image_2: req.files?.find(f => f.fieldname === 'main_image_2')?.path || '',
+      main_image_3: req.files?.find(f => f.fieldname === 'main_image_3')?.path || '',
+      main_image_4: req.files?.find(f => f.fieldname === 'main_image_4')?.path || '',
+    });
+
+    res.status(201).json(newFinish);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
 
   
     const newFinish = await Finish.create({
@@ -531,38 +554,25 @@ exports.updateFinish = async (req, res) => {
   try {
     let updateData = {};
 
-    // تحديث main_image فقط لو موجود
-    if (req.files?.find(f => f.fieldname === 'main_image')) {
-      updateData.main_image = req.files.find(f => f.fieldname === 'main_image').path;
-    } else if (req.body.main_image) {
-      updateData.main_image = req.body.main_image;
-    }
-    // تحديث main_image_2 فقط لو موجود
-    if (req.files?.find(f => f.fieldname === 'main_image_2')) {
-      updateData.main_image_2 = req.files.find(f => f.fieldname === 'main_image_2').path;
-    } else if (req.body.main_image_2) {
-      updateData.main_image_2 = req.body.main_image_2;
-    }
-    // تحديث main_image_3 فقط لو موجود
-    if (req.files?.find(f => f.fieldname === 'main_image_3')) {
-      updateData.main_image_3 = req.files.find(f => f.fieldname === 'main_image_3').path;
-    } else if (req.body.main_image_3) {
-      updateData.main_image_3 = req.body.main_image_3;
-    }
-    // تحديث main_image_4 فقط لو موجود
-    if (req.files?.find(f => f.fieldname === 'main_image_4')) {
-      updateData.main_image_4 = req.files.find(f => f.fieldname === 'main_image_4').path;
-    } else if (req.body.main_image_4) {
-      updateData.main_image_4 = req.body.main_image_4;
-    }
+    // تحديث الصور الرئيسية
+    ['main_image', 'main_image_2', 'main_image_3', 'main_image_4'].forEach(field => {
+      const file = req.files?.find(f => f.fieldname === field);
+      if (file) {
+        updateData[field] = file.path;
+      } else if (req.body[field]) {
+        updateData[field] = req.body[field];
+      }
+    });
 
-    // تحديث finishies لو اتبعتت
-    if (req.body.finishies && Array.isArray(req.body.finishies)) {
-      let finishies = [];
-      req.body.finishies.forEach((finish, index) => {
-        const imageFile = req.files?.find(f => f.fieldname === `finishies[${index}][image]`);
+    // تحديث finishies
+    if (req.body.finishies) {
+      const finishiesData = Array.isArray(req.body.finishies)
+        ? req.body.finishies
+        : Object.values(req.body.finishies);
+
+      updateData.finishies = finishiesData.map((finish, idx) => {
+        const imageFile = req.files?.find(f => f.fieldname === `finishies[${idx}][image]`);
         let props = finish.properties;
-
         if (typeof props === 'string') {
           try {
             props = JSON.parse(props);
@@ -570,40 +580,42 @@ exports.updateFinish = async (req, res) => {
             props = props;
           }
         }
-
-        finishies.push({
+        return {
           name: finish.name,
-          image: imageFile ? imageFile.path : finish.image,
+          image: imageFile ? imageFile.path : finish.image || '',
           properties: props
-        });
+        };
       });
-      updateData.finishies = finishies;
     }
 
-    // تحديث process لو اتبعتت
-    if (req.body.process && Array.isArray(req.body.process)) {
-      let processArr = [];
-      req.body.process.forEach((proc, index) => {
-        const iconFile = req.files?.find(f => f.fieldname === `process[${index}][icon_image]`);
-        processArr.push({
+    // تحديث process
+    if (req.body.process) {
+      const processData = Array.isArray(req.body.process)
+        ? req.body.process
+        : Object.values(req.body.process);
+
+      updateData.process = processData.map((proc, idx) => {
+        const iconFile = req.files?.find(f => f.fieldname === `process[${idx}][icon_image]`);
+        return {
           name: proc.name,
-          icon_image: iconFile ? iconFile.path : proc.icon_image,
+          icon_image: iconFile ? iconFile.path : proc.icon_image || '',
           description: proc.description
-        });
+        };
       });
-      updateData.process = processArr;
     }
 
-    // التحديث
+    // تنفيذ التحديث
     const updatedFinish = await Finish.findByIdAndUpdate(
       req.params.finish_id,
       updateData,
       { new: true }
     );
 
-    if (!updatedFinish) return res.status(404).json({ error: 'Finish not found' });
+    if (!updatedFinish) {
+      return res.status(404).json({ error: 'Finish not found' });
+    }
 
-    res.json(updatedFinish);
+    res.status(200).json(updatedFinish);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -700,7 +712,7 @@ exports.deleteContact = async (req, res) => {
 exports.createFormRealestate = async (req, res) => {
   try {
     const image = req.files?.find(f => f.fieldname === 'image');
-    let imageLink = image ? `${URL}/uploads/${image.filename}` : null;
+    let imageLink = image ? image.path : null;
     const {
       name,
       description,
@@ -758,9 +770,9 @@ exports.createDecoration = async (req, res) => {
     const image_2 = req.files?.find(f => f.fieldname === 'image_2');
     const image_3 = req.files?.find(f => f.fieldname === 'image_3');
 
-    const imageLink_1 = image_1 ? `${URL}/uploads/${image_1.filename}` : null;
-    const imageLink_2 = image_2 ? `${URL}/uploads/${image_2.filename}` : null;
-    const imageLink_3 = image_3 ? `${URL}/uploads/${image_3.filename}` : null;
+    const imageLink_1 = image_1 ? image_1.path : null;
+    const imageLink_2 = image_2 ? image_2.path : null;
+    const imageLink_3 = image_3 ? image_3.path : null;
 
     const { name, description, category } = req.body;
 
@@ -808,9 +820,9 @@ exports.updateDecoration = async (req, res) => {
     const image_3 = req.files?.find(f => f.fieldname === 'image_3');
 
     const updateData = { ...req.body };
-    if (image_1) updateData.image_1 = `${URL}/uploads/${image_1.filename}`;
-    if (image_2) updateData.image_2 = `${URL}/uploads/${image_2.filename}`;
-    if (image_3) updateData.image_3 = `${URL}/uploads/${image_3.filename}`;
+    if (image_1) updateData.image_1 = image_1.path;
+    if (image_2) updateData.image_2 = image_2.path;
+    if (image_3) updateData.image_3 = image_3.path;
 
     const decoration = await Decoration.findByIdAndUpdate(req.params.decoration_id, updateData, { new: true });
     if (!decoration) return res.status(404).json({ message: 'Decoration not found' });
@@ -840,4 +852,5 @@ exports.deleteFormDecoration = async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
+
 };
