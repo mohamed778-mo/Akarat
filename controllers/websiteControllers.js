@@ -161,7 +161,7 @@ exports.getAllContacts = async (req, res) => {
 exports.createFormRealestate = async (req, res) => {
   try {
     const image = req.files?.find(f => f.fieldname === 'image');
-    let imageLink = image ? `${URL}/uploads/${image.filename}` : null;
+    let imageLink = image ? image.path : null;
     const {
       name,
       description,
@@ -206,9 +206,9 @@ exports.createFormDecoration = async (req, res) => {
     const place_image_2 = req.files?.find(f => f.fieldname === 'image_2');
     const place_image_3 = req.files?.find(f => f.fieldname === 'image_3');
 
-    let placeImage1Link = place_image_1 ? `${URL}/uploads/${place_image_1.filename}` : null;
-    let placeImage2Link = place_image_2 ? `${URL}/uploads/${place_image_2.filename}` : null;
-    let placeImage3Link = place_image_3 ? `${URL}/uploads/${place_image_3.filename}` : null;
+    let placeImage1Link = place_image_1 ? place_image_1.path : null;
+    let placeImage2Link = place_image_2 ? place_image_2.filename : null;
+    let placeImage3Link = place_image_3 ? place_image_3.filename : null;
 
     const decoration_id = req.params.decoration_id;
     const decoration = await Decoration.findById(decoration_id);
