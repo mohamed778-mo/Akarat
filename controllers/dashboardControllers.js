@@ -449,19 +449,17 @@ exports.deletePartner = async (req, res) => {
 
 
 
+
 exports.createFinish = async (req, res) => {
   try {
     let finishies = [];
     let processArr = [];
 
-    // معالجة finishies
-    if (req.body.finishies) {
-      const finishiesData = Array.isArray(req.body.finishies)
-        ? req.body.finishies
-        : Object.values(req.body.finishies);
 
-      finishiesData.forEach((finish, idx) => {
-        let props = finish.properties;
+    if (req.body.finishies) {
+      Object.keys(req.body.finishies).forEach(idx => {
+        let props = req.body.finishies[idx].properties;
+
         if (typeof props === 'string') {
           try {
             props = JSON.parse(props);
@@ -472,44 +470,24 @@ exports.createFinish = async (req, res) => {
 
         const imageFile = req.files?.find(f => f.fieldname === `finishies[${idx}][image]`);
         finishies.push({
-          name: finish.name,
+          name: req.body.finishies[idx].name,
           image: imageFile ? imageFile.path : '',
           properties: props
         });
       });
     }
 
-    // معالجة process
-    if (req.body.process) {
-      const processData = Array.isArray(req.body.process)
-        ? req.body.process
-        : Object.values(req.body.process);
 
-      processData.forEach((proc, idx) => {
+    if (req.body.process) {
+      Object.keys(req.body.process).forEach(idx => {
         const iconFile = req.files?.find(f => f.fieldname === `process[${idx}][icon_image]`);
         processArr.push({
-          name: proc.name,
+          name: req.body.process[idx].name,
           icon_image: iconFile ? iconFile.path : '',
-          description: proc.description
+          description: req.body.process[idx].description
         });
       });
     }
-
-    // إنشاء Finish جديد
-    const newFinish = await Finish.create({
-      finishies,
-      process: processArr,
-      main_image: req.files?.find(f => f.fieldname === 'main_image')?.path || '',
-      main_image_2: req.files?.find(f => f.fieldname === 'main_image_2')?.path || '',
-      main_image_3: req.files?.find(f => f.fieldname === 'main_image_3')?.path || '',
-      main_image_4: req.files?.find(f => f.fieldname === 'main_image_4')?.path || '',
-    });
-
-    res.status(201).json(newFinish);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-};
 
   
     const newFinish = await Finish.create({
@@ -526,7 +504,6 @@ exports.createFinish = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
-
 
 
 exports.getAllFinishes = async (req, res) => {
@@ -554,25 +531,38 @@ exports.updateFinish = async (req, res) => {
   try {
     let updateData = {};
 
-    // تحديث الصور الرئيسية
-    ['main_image', 'main_image_2', 'main_image_3', 'main_image_4'].forEach(field => {
-      const file = req.files?.find(f => f.fieldname === field);
-      if (file) {
-        updateData[field] = file.path;
-      } else if (req.body[field]) {
-        updateData[field] = req.body[field];
-      }
-    });
+    // تحديث main_image فقط لو موجود
+    if (req.files?.find(f => f.fieldname === 'main_image')) {
+      updateData.main_image = req.files.find(f => f.fieldname === 'main_image').path;
+    } else if (req.body.main_image) {
+      updateData.main_image = req.body.main_image;
+    }
+    // تحديث main_image_2 فقط لو موجود
+    if (req.files?.find(f => f.fieldname === 'main_image_2')) {
+      updateData.main_image_2 = req.files.find(f => f.fieldname === 'main_image_2').path;
+    } else if (req.body.main_image_2) {
+      updateData.main_image_2 = req.body.main_image_2;
+    }
+    // تحديث main_image_3 فقط لو موجود
+    if (req.files?.find(f => f.fieldname === 'main_image_3')) {
+      updateData.main_image_3 = req.files.find(f => f.fieldname === 'main_image_3').path;
+    } else if (req.body.main_image_3) {
+      updateData.main_image_3 = req.body.main_image_3;
+    }
+    // تحديث main_image_4 فقط لو موجود
+    if (req.files?.find(f => f.fieldname === 'main_image_4')) {
+      updateData.main_image_4 = req.files.find(f => f.fieldname === 'main_image_4').path;
+    } else if (req.body.main_image_4) {
+      updateData.main_image_4 = req.body.main_image_4;
+    }
 
-    // تحديث finishies
-    if (req.body.finishies) {
-      const finishiesData = Array.isArray(req.body.finishies)
-        ? req.body.finishies
-        : Object.values(req.body.finishies);
-
-      updateData.finishies = finishiesData.map((finish, idx) => {
-        const imageFile = req.files?.find(f => f.fieldname === `finishies[${idx}][image]`);
+    // تحديث finishies لو اتبعتت
+    if (req.body.finishies && Array.isArray(req.body.finishies)) {
+      let finishies = [];
+      req.body.finishies.forEach((finish, index) => {
+        const imageFile = req.files?.find(f => f.fieldname === `finishies[${index}][image]`);
         let props = finish.properties;
+
         if (typeof props === 'string') {
           try {
             props = JSON.parse(props);
@@ -580,42 +570,40 @@ exports.updateFinish = async (req, res) => {
             props = props;
           }
         }
-        return {
+
+        finishies.push({
           name: finish.name,
-          image: imageFile ? imageFile.path : finish.image || '',
+          image: imageFile ? imageFile.path : finish.image,
           properties: props
-        };
+        });
       });
+      updateData.finishies = finishies;
     }
 
-    // تحديث process
-    if (req.body.process) {
-      const processData = Array.isArray(req.body.process)
-        ? req.body.process
-        : Object.values(req.body.process);
-
-      updateData.process = processData.map((proc, idx) => {
-        const iconFile = req.files?.find(f => f.fieldname === `process[${idx}][icon_image]`);
-        return {
+    // تحديث process لو اتبعتت
+    if (req.body.process && Array.isArray(req.body.process)) {
+      let processArr = [];
+      req.body.process.forEach((proc, index) => {
+        const iconFile = req.files?.find(f => f.fieldname === `process[${index}][icon_image]`);
+        processArr.push({
           name: proc.name,
-          icon_image: iconFile ? iconFile.path : proc.icon_image || '',
+          icon_image: iconFile ? iconFile.path : proc.icon_image,
           description: proc.description
-        };
+        });
       });
+      updateData.process = processArr;
     }
 
-    // تنفيذ التحديث
+    // التحديث
     const updatedFinish = await Finish.findByIdAndUpdate(
       req.params.finish_id,
       updateData,
       { new: true }
     );
 
-    if (!updatedFinish) {
-      return res.status(404).json({ error: 'Finish not found' });
-    }
+    if (!updatedFinish) return res.status(404).json({ error: 'Finish not found' });
 
-    res.status(200).json(updatedFinish);
+    res.json(updatedFinish);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -854,3 +842,4 @@ exports.deleteFormDecoration = async (req, res) => {
   }
 
 };
+
