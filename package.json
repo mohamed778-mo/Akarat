@@ -127,7 +127,12 @@
   "xss": "^1.0.15",
   
     
-  "xss-clean": "^0.1.4"
+  "xss-clean": "^0.1.4",
+
+    "cloudinary": "^1.41.3",
+
+    "multer-storage-cloudinary": "^4.0.0",
+    
   
   }
 }
