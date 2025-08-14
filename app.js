@@ -25,7 +25,7 @@ app.use(helmet({
 
 
 
-const allowedOrigins = ['http://donlyhelio.egyptge.com', 'http://onlyhelio.egyptge.com', 'http://bonlyhelio.egyptge.com','https://akarat-six.vercel.app' ];
+const allowedOrigins = [ 'https://akarat-front.vercel.app','https://akarat-six.vercel.app' ];
 
 app.use((req, res, next) => {
   const origin = req.headers.origin;
