@@ -367,6 +367,16 @@ exports.getAllRequests = async (req, res) => {
   }
 };
 
+exports.getRequestById = async (req, res) => {
+  try {
+    const request_id = req.params.request_id
+    const request = await Request.findById(request_id);
+    res.status(200).json(request);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 exports.editRequest = async (req, res) => {
   try {
     const updateData = { ...req.body };
@@ -417,6 +427,16 @@ exports.getAllPartners = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 }
+
+exports.getPartnersById = async (req, res) => {
+  try {
+    const partner_id = req.params.partner_id
+    const Partner = await Partner.findById(partner_id);
+    res.status(200).json(Partner);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
 
 exports.editPartner = async (req, res) => {
   try {
@@ -525,6 +545,17 @@ exports.getAllFinishes = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
+exports.getFinishById = async (req, res) => {
+  try {
+    const finish_id = req.params.finish_id
+    const finish = await Finish.findById(finish_id);
+    res.status(200).json(finish);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 
 
 exports.updateFinish = async (req, res) => {
@@ -667,6 +698,16 @@ exports.getAllContacts = async (req, res) => {
   }
 }
 
+exports.getContactbyid = async (req, res) => {
+  try {
+    const contact_id = req.params.contact_id
+    const contact = await Contact.findById(contact_id);
+    res.status(200).json(contact);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
+
 exports.updateContact = async (req, res) => {
   try {
     const { gmail, phone, location, facebook_link, instagram_link, twitter_link, linkedin_link } = req.body;
@@ -741,6 +782,7 @@ exports.getAllRealestateForms = async (req, res) => {
 
 
 
+
 exports.deleteRealestateForm = async (req, res) => {
   try {
     const form = await FormRealestate.findByIdAndDelete(req.params.id);
@@ -789,6 +831,16 @@ exports.getAllDecorations = async (req, res) => {
   }
 };
 
+
+exports.getDecorationById = async (req, res) => {
+  try {
+    const decoration_id = req.params.decoration_id
+    const rsf = await Decoration.findById(rsf_id);
+    res.status(200).json(rsf);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
 
 
 exports.deleteDecoration = async (req, res) => {
@@ -842,4 +894,5 @@ exports.deleteFormDecoration = async (req, res) => {
   }
 
 };
+
 
