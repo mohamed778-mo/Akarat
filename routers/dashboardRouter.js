@@ -33,17 +33,25 @@ router.delete('/delete_booking/:id',adminAuth, dashboardControllers.deleteBookin
 
 
 router.get('/get_all_requests',adminAuth, dashboardControllers.getAllRequests);
+router.get('/get_request/:request_id',adminAuth, dashboardControllers.getRequestById);
+
 router.patch('/edit_request/:id',adminAuth, dashboardControllers.editRequest);
 router.delete('/delete_request/:id',adminAuth, dashboardControllers.deleteRequest);
 
 
 router.post('/create_partner', adminAuth, Iupload.any(), dashboardControllers.createPartner);
 router.get('/get_all_partners', adminAuth, dashboardControllers.getAllPartners);
+
+router.get('/get_partner/:partner_id', adminAuth, dashboardControllers.getPartnersById);
+
 router.patch('/edit_partner/:partner_id', adminAuth, Iupload.any(), dashboardControllers.editPartner);
 router.delete('/delete_partner/:partner_id', adminAuth, dashboardControllers.deletePartner);
 
 router.post('/create_finish', adminAuth, Iupload.any(), dashboardControllers.createFinish);
 router.get('/get_all_finishes', adminAuth, dashboardControllers.getAllFinishes);
+
+router.get('/get_finish/:finish_id', adminAuth, dashboardControllers.getFinishById);
+
 router.patch('/edit_finish/:finish_id', adminAuth, Iupload.any(), dashboardControllers.updateFinish);
 
 router.get('/get_all_finish_forms', adminAuth, dashboardControllers.getAllFinishForms);
@@ -52,6 +60,9 @@ router.delete('/delete_finish_form/:id', adminAuth, dashboardControllers.deleteF
 
 router.post('/create_contact', adminAuth, dashboardControllers.createContact);
 router.get('/get_all_contacts', adminAuth, dashboardControllers.getAllContacts);
+
+router.patch('/get_contact/:contact_id', adminAuth, dashboardControllers.getContactbyid);
+
 router.patch('/edit_contact/:contact_id', adminAuth, dashboardControllers.updateContact);
 router.delete('/delete_contact/:contact_id', adminAuth, dashboardControllers.deleteContact);
 
@@ -62,6 +73,9 @@ router.delete('/delete_realestate_form/:id', adminAuth, dashboardControllers.del
 
 router.post('/create_decoration', adminAuth, Iupload.any(), dashboardControllers.createDecoration);
 router.get('/get_all_decorations', adminAuth, dashboardControllers.getAllDecorations);
+
+router.get('/get_decoration/:decoration_id', adminAuth, dashboardControllers.getDecorationById);
+
 router.patch('/edit_decoration/:decoration_id', adminAuth, Iupload.any(), dashboardControllers.updateDecoration);
 router.delete('/delete_decoration/:decoration_id', adminAuth, dashboardControllers.deleteDecoration);
 
@@ -72,3 +86,4 @@ router.delete('/delete_form_decoration/:form_decoration_id', adminAuth, dashboar
 
 
 module.exports = router;
+
