@@ -85,8 +85,9 @@ router.get('/get_all_form_decorations', adminAuth, dashboardControllers.get_all_
 router.delete('/delete_form_decoration/:form_decoration_id', adminAuth, dashboardControllers.deleteFormDecoration);
 
 
-router.ger('/get_all_number_of_services', adminAuth, dashboardControllers.get_all_number_of_stats);
+router.get('/get_all_number_of_services', adminAuth, dashboardControllers.get_all_number_of_stats);
 
 module.exports = router;
+
 
 
