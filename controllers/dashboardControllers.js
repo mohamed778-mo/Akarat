@@ -896,3 +896,36 @@ exports.deleteFormDecoration = async (req, res) => {
 };
 
 
+exports.get_all_number_of_stats = async (req, res) => {
+  try {
+    const departmentsCount = await Department.countDocuments();
+    const bookingsCount = await Booking.countDocuments();
+    const requestsCount = await Request.countDocuments();
+    const partnersCount = await Partner.countDocuments();
+    const finishesCount = await Finish.countDocuments();
+    const contactsCount = await Contact.countDocuments();
+    const decorationsCount = await Decoration.countDocuments();
+    const formsCount = await FormRealestate.countDocuments();
+    const formDecorationsCount = await FormDecoration.countDocuments();
+    const finishFormsCount = await FinishForm.countDocuments();
+
+    res.status(200).json({
+      departments: departmentsCount,
+      requests: requestsCount,
+      partners: partnersCount,
+      finishes: finishesCount,
+      contacts: contactsCount,
+      decorations: decorationsCount,
+      
+      formsRealestate: formsCount,
+      formDecorations: formDecorationsCount,
+      finishForms: finishFormsCount,
+      bookings: bookingsCount,
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
+
+
+
