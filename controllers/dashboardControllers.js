@@ -59,6 +59,7 @@ exports.login_admin = async (req, res) => {
       maxAge: 7 * 24 * 60 * 60 * 1000, 
       secure: true, 
       httpOnly: true,
+      sameSite: "None"
     });
     user.tokens.push(token);
     await user.save();
@@ -926,6 +927,7 @@ exports.get_all_number_of_stats = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 }
+
 
 
 
