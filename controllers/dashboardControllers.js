@@ -53,7 +53,7 @@ exports.login_admin = async (req, res) => {
       const message = 'Invalid email or password';
       return res.status(404).send({ message });
     }
-    const SECRETKEY ="rdtcyiu8oktvdsj7euw22111gagdhrfhjfajyil82u55hghasdf"
+      const SECRETKEY =process.env.SECRETKEY;
     const token = jwt.sign({ id: user._id, type: user.role }, SECRETKEY,{ expiresIn: '7d' });
     res.cookie("access_token", token, {
       maxAge: 7 * 24 * 60 * 60 * 1000, 
@@ -926,6 +926,7 @@ exports.get_all_number_of_stats = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 }
+
 
 
 
