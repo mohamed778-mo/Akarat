@@ -20,7 +20,7 @@ const adminAuth = async (req, res, next) => {
       return res.status(401).send("Please login!");
     }
 
-    const SECRETKEY ="rdtcyiu8oktvdsj7euw22111gagdhrfhjfajyil82u55hghasdf"
+      const SECRETKEY =process.env.SECRETKEY;
    
     const decoded = jwt.verify(token, SECRETKEY);
 
@@ -41,3 +41,4 @@ const adminAuth = async (req, res, next) => {
 module.exports = {
   adminAuth,
 };
+
